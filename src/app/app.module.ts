@@ -8,10 +8,19 @@ import { AppComponent } from './app.component';
 import { MatListModule } from '@angular/material/list';
 import 'hammerjs';
 import { MenuComponent } from './menu/menu.component';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { DishdetailComponent } from './dishdetail/dishdetail.component';
+import { HeaderComponent } from './header/header.component';
+import { FooterComponent } from './footer/footer.component';
 @NgModule({
   declarations: [
     AppComponent,
-    MenuComponent
+    MenuComponent,
+    DishdetailComponent,
+    HeaderComponent,
+    FooterComponent
   ],
   imports: [
     BrowserModule,
@@ -19,7 +28,10 @@ import { MenuComponent } from './menu/menu.component';
     BrowserAnimationsModule,
     MatToolbarModule,
     FlexLayoutModule,
-    MatListModule
+    MatListModule,
+    MatGridListModule,
+    MatCardModule,
+    MatButtonModule
   ],
   providers: [],
   bootstrap: [AppComponent]
