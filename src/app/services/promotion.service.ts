@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Promotion } from '../share/promotion';
 import { PROMOTIONS } from '../share/promotions';
-import { resolve } from 'dns';
 import {Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
