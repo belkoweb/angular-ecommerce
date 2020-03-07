@@ -13,6 +13,7 @@ import { Comment } from '../share/comment';
   styleUrls: ['./dishdetail.component.scss']
 })
 export class DishdetailComponent implements OnInit {
+  dishErrMess: string;
   dish: Dish;
   dishIds: string[];
   prev: string;
@@ -44,7 +45,7 @@ export class DishdetailComponent implements OnInit {
 
 ngOnInit() {
 
-  this.dishservice.getDishIds().subscribe(dishIds => this.dishIds = dishIds);
+  this.dishservice.getDishIds().subscribe(dishIds => this.dishIds = dishIds, dishErrMess => this.dishErrMess = <any>dishErrMess);
   this.route.params.pipe(switchMap((params: Params) => this.dishservice.getDish(params['id'])))
   .subscribe(dish => { this.dish = dish; this.setPrevNext(dish.id); });
 }
