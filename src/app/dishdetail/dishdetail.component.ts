@@ -7,12 +7,28 @@ import { switchMap } from 'rxjs/operators';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { Feedback, ContactType } from '../share/feedback';
 import { Comment } from '../share/comment';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 @Component({
   selector: 'app-dishdetail',
   templateUrl: './dishdetail.component.html',
-  styleUrls: ['./dishdetail.component.scss']
+  styleUrls: ['./dishdetail.component.scss'],
+  animations: [
+    trigger('visibility', [
+        state('shown', style({
+            transform: 'scale(1.0)',
+            opacity: 1
+        })),
+        state('hidden', style({
+            transform: 'scale(0.5)',
+            opacity: 0
+        })),
+        transition('* => *', animate('0.5s ease-in-out'))
+    ])
+  ]
 })
 export class DishdetailComponent implements OnInit {
+ visibility = 'shown';
+  dishcopy: Dish;
   dishErrMess: string;
   dish: Dish;
   dishIds: string[];
@@ -22,19 +38,19 @@ export class DishdetailComponent implements OnInit {
   feedbackForm: FormGroup;
   feedback: any;
   formErrors = {
-    'author': '',
-    'comment': ''
+    author: '',
+    comment: ''
   };
   validationMessages = {
-    'author': {
-      'required': 'Name is required.',
-      'minlength': 'Name must be at least 2 characters long.',
-      'maxlength': 'Name cannot be more than 25 characters long.'
+    author: {
+      required: 'Name is required.',
+      minlength: 'Name must be at least 2 characters long.',
+      maxlength: 'Name cannot be more than 25 characters long.'
     },
-    'comment': {
-      'required': 'Message is required.',
-      'minlength': 'Message must be at least 2 characters long.',
-      'maxlength': 'Message cannot be more than 1500 characters long.'
+    comment: {
+      required: 'Message is required.',
+      minlength: 'Message must be at least 2 characters long.',
+      maxlength: 'Message cannot be more than 1500 characters long.'
     }
   };
 
@@ -45,9 +61,18 @@ export class DishdetailComponent implements OnInit {
 
 ngOnInit() {
 
-  this.dishservice.getDishIds().subscribe(dishIds => this.dishIds = dishIds, dishErrMess => this.dishErrMess = <any>dishErrMess);
-  this.route.params.pipe(switchMap((params: Params) => this.dishservice.getDish(params['id'])))
-  .subscribe(dish => { this.dish = dish; this.setPrevNext(dish.id); });
+  this.dishservice.getDishIds().subscribe(dishIds => this.dishIds = dishIds, dishErrMess => this.dishErrMess =  dishErrMess as any);
+  /*this.route.params.pipe(switchMap((params: Params) => this.dishservice.getDish(params['id'])))
+  .subscribe(dish => { this.dish = dish; this.setPrevNext(dish.id); });*/
+ /* this.route.params
+      .pipe(switchMap((params: Params) => this.dishservice.getDish(params['id'])))
+      .subscribe(dish => { this.dish = dish; this.dishcopy = dish; this.setPrevNext(dish.id); },
+        errmess => this.dishErrMess = <any>errmess );*/
+  this.route.params.pipe(switchMap((params: Params) => { this.visibility = 'hidden';
+                                                         return this.dishservice.getDish(+params.id); }))
+    .subscribe(dish => { this.dish = dish; this.dishcopy = dish;
+                         this.setPrevNext(dish.id); this.visibility = 'shown'; },
+    errmess => this.dishErrMess =  errmess as any);
 }
 
 createForm() {
@@ -84,12 +109,26 @@ onValueChanged(data?: any) {
 
 onSubmit() {
   this.feedback = this.feedbackForm.value;
+  const comment: Comment = {
+    rating:  this.feedback.rating,
+    comment: this.feedback.comment,
+    author: this.feedback.author,
+    date: new Date().toISOString()
+    };
+  this.dishcopy.comments.push(comment);
+  this.dishservice.putDish(this.dishcopy)
+    .subscribe(dish => {
+      this.dish = dish; this.dishcopy = dish;
+    },
+    errmess => { this.dish = null; this.dishcopy = null; this.dishErrMess =  errmess as any; });
+
+  /*
   this.dish.comments.push({
     rating: this.feedback.rating,
     comment: this.feedback.comment,
     author: this.feedback.author,
     date: new Date().toISOString()
-    });
+    });*/
   this.feedbackFormDirective.resetForm();
   this.feedbackForm.reset({
     rating: 5,
