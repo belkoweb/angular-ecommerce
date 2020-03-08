@@ -7,27 +7,24 @@ import { switchMap } from 'rxjs/operators';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { Feedback, ContactType } from '../share/feedback';
 import { Comment } from '../share/comment';
-import { trigger, state, style, animate, transition } from '@angular/animations';
+import { flyInOut, visibility, expand } from '../animations/app.animation';
 @Component({
   selector: 'app-dishdetail',
   templateUrl: './dishdetail.component.html',
   styleUrls: ['./dishdetail.component.scss'],
+  // tslint:disable-next-line: no-host-metadata-property
+  host: {
+    '[@flyInOut]': 'true',
+    style: 'display: block;'
+    },
   animations: [
-    trigger('visibility', [
-        state('shown', style({
-            transform: 'scale(1.0)',
-            opacity: 1
-        })),
-        state('hidden', style({
-            transform: 'scale(0.5)',
-            opacity: 0
-        })),
-        transition('* => *', animate('0.5s ease-in-out'))
-    ])
+    flyInOut(),
+    visibility(),
+    expand()
   ]
 })
 export class DishdetailComponent implements OnInit {
- visibility = 'shown';
+  visibility = 'shown';
   dishcopy: Dish;
   dishErrMess: string;
   dish: Dish;
@@ -62,12 +59,6 @@ export class DishdetailComponent implements OnInit {
 ngOnInit() {
 
   this.dishservice.getDishIds().subscribe(dishIds => this.dishIds = dishIds, dishErrMess => this.dishErrMess =  dishErrMess as any);
-  /*this.route.params.pipe(switchMap((params: Params) => this.dishservice.getDish(params['id'])))
-  .subscribe(dish => { this.dish = dish; this.setPrevNext(dish.id); });*/
- /* this.route.params
-      .pipe(switchMap((params: Params) => this.dishservice.getDish(params['id'])))
-      .subscribe(dish => { this.dish = dish; this.dishcopy = dish; this.setPrevNext(dish.id); },
-        errmess => this.dishErrMess = <any>errmess );*/
   this.route.params.pipe(switchMap((params: Params) => { this.visibility = 'hidden';
                                                          return this.dishservice.getDish(+params.id); }))
     .subscribe(dish => { this.dish = dish; this.dishcopy = dish;
